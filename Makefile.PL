@@ -3,7 +3,7 @@ use ExtUtils::MakeMaker;
 # the contents of the Makefile that is written.
 
 # Nice-to-have prerequisites :
-foreach (qw(Digest::MD5)) {
+foreach (qw(Digest Digest::MD5)) {
   warn "File::Modified likes to have $_, but doesn't require it.\n"
     unless eval "require $_; 1";
 };

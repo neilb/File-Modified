@@ -3,3 +3,9 @@ Revision history for Perl extension File::Modified.
 0.01  Tue Apr 16 18:55:38 2002
   - original version; created by h2xs 1.21 with options
     -X File::Modified
+    
+0.02  Thu May 09 2002    
+  - Added checksum signature
+  - Added more tests (now up to 40)
+  - Changed MD5 fallback from mtime to checksum
+  - Added general use of the Digest:: module tree instead of MD5 only

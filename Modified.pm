@@ -9,7 +9,7 @@ require Exporter;
 use vars qw( @ISA $VERSION );
 
 @ISA = qw(Exporter);
-$VERSION = '0.01';
+$VERSION = '0.02';
 
 sub new {
   my ($class, %args) = @_;
@@ -29,6 +29,21 @@ sub new {
   return $self;
 };
 
+sub _make_digest_signature {
+  my ($self,$digest) = @_;
+  
+  eval "use Digest::$digest";
+  
+  if (! $@) {  
+    no strict 'refs';
+    if (defined @{"Digest::${digest}::ISA"}) {
+      @{"File::Signature::${digest}::ISA"} = qw(File::Signature::Digest);
+      return 1;
+    };
+  };
+  return undef;
+};
+
 sub add {
   my ($self,$filename,$method) = @_;
   $method ||= $self->{Defaultmethod};
@@ -38,7 +53,14 @@ sub add {
   if (! $@) {
     return $self->{Files}->{$filename} = $s;
   } else {
-    return undef;
+    # retry and try Digest::$method
+  
+    if ($self->_make_digest_signature($method)) {
+      my $s = $signatureclass->new($filename);
+      return $self->{Files}->{$filename} = $s;
+    } else {
+      return undef;
+    };
   };
 };
 
@@ -111,14 +133,14 @@ sub changed {
     $self->{Signature} = $self->signature();
     return $self;
   };
-  
+
   sub from_scalar {
     my ($baseclass,$scalar) = @_;
     die "Strange value in from_scalar: $scalar\n" unless $scalar =~ /^([^|]+)\|([^|]+)\|(.+)$/;
     my ($class,$filename,$signature) = ($1,$2,$3);
     return $class->create($filename,$signature);
   };
-  
+
   sub as_scalar {
     my ($self) = @_;
     return ref($self) . "|" . $self->{Filename} . "|" . $self->{Signature};
@@ -153,30 +175,47 @@ sub changed {
 };
 
 {
-  package File::Signature::MD5;
+  package File::Signature::Checksum;
   use base 'File::Signature';
 
-  use vars qw( $fallback );
-
-  BEGIN {
-    eval "use Digest::MD5";
-
-    if ($@) {
-      #print "Falling back on File::Signature::mtime\n";
-      $fallback = 1;
+  sub signature {
+    my ($self) = @_;
+    my $result;
+    if (-e $self->{Filename} and -r $self->{Filename}) {
+      local *F;
+      open F, $self->{Filename} or die "Couldn't read from file '$self->{Filename}' : $!";
+      binmode F;
+      
+      my $buf;
+      while (read(F,$buf,32768)) {
+        $result += unpack("%32C*", $buf);
+        $result %= 0xFFFFFFFF;      
+      };
+            
+      close F;
     };
+    return $result;
   };
+};
 
-  # Fall back on simple mtime check unless MD5 is available :
+{
+  package File::Signature::Digest;
+  use base 'File::Signature';
 
-  sub new {
-    my ($class,$filename) = @_;
-
-    if ($fallback) {
-      return File::Signature::mtime->new($filename);
-    } else {
-      return $class->SUPER::new($filename);
+  sub digestname {
+    my ($class) = @_;
+    $class = ref $class || $class; 
+    return $1 if ($class =~ /^File::Signature::([^:]+)$/);
+  };
+  
+  sub digest {
+    my ($self) = @_;
+    if (! exists $self->{Digest}) {
+      my $digestclass = "Digest::" . $self->digestname;
+      eval "use $digestclass";
+      $self->{Digest} = $digestclass->new();
     };
+    return $self->{Digest};
   };
 
   sub signature {
@@ -185,7 +224,8 @@ sub changed {
     if (-e $self->{Filename} and -r $self->{Filename}) {
       local *F;
       open F, $self->{Filename} or die "Couldn't read from file '$self->{Filename}' : $!";
-      $result = Digest::MD5->new()->addfile(*F)->b64digest();
+      #$result = Digest::MD5->new()->addfile(*F)->b64digest();
+      $result = $self->digest->addfile(*F)->b64digest();
       close F;
     };
     return $result;
@@ -278,29 +318,35 @@ and easy comparision whether an index database is current with the actual data.
 
 The interface is settled, there are two methods, C<as_scalar> and C<from_scalar>,
 that you use to freeze and thaw the signatures. The implementation of these methods
-is very frugal, there are no provisions made against filenames that contain weird 
+is very frugal, there are no provisions made against filenames that contain weird
 characters like C<\n> or C<|> (the pipe bar), both will be likely to mess up your
 one-line-per-file database. An interesting method could be to URL-encode all filenames,
-but I will visit this topic in the next release. Also, complex (that is, non-scalar) 
+but I will visit this topic in the next release. Also, complex (that is, non-scalar)
 signatures are handled rather ungraceful at the moment.
+
+Currently, I'm planning to use L<Text::Quote> as a quoting mechanism to protect against
+multiline filenames.
 
 =head2 Adding new methods for signatures
 
 Adding a new signature method is as simple as creating a new subclass
-of C<File::Signature>. See C<File::Signature::MD5> for a simple
+of C<File::Signature>. See C<File::Signature::Checksum> for a simple
 example. There is one point of laziness in the implementation of C<File::Signature>,
 the C<check> method can only compare strings instead of arbitrary structures (yes,
-there ARE things that are easier in Python than in Perl).
+there ARE things that are easier in Python than in Perl). C<File::Signature::Digest>
+is a wrapper for Gisle Aas' L<Digest> module and allows you to use any module below
+the C<Digest> namespace as a signature, for example C<File::Signature::MD5> and 
+C<File::Signature::SHA1>.
 
 =head2 TODO
 
-* Extract the C<File::Signature> subclasses out into their own file.
+* Make the simple persistence solution for the signatures better using L<Text::Quote>.
 
 * Allow complex structures for the signatures.
 
-* Make the simple persistence solution for the signatures better.
-
 * Document C<File::Signature> or put it down into another namespace.
+
+* Extract the C<File::Signature> subclasses out into their own file.
 
 =head2 EXPORT
 
@@ -316,8 +362,10 @@ Copyright (C) 2002 Max Maischein
 
 Max Maischein, E<lt>corion@cpan.orgE<gt>
 
+Please contact me if you find bugs or otherwise improve the module. More tests are also very welcome !
+
 =head1 SEE ALSO
 
-L<perl>,L<Digest::MD5>.
+L<perl>,L<Digest::MD5>,L<Digest>.
 
 =cut

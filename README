@@ -1,9 +1,10 @@
-File::Modified version 0.01
+File::Modified version 0.02
 =========================
 
 This module provides an easy way for long running processes
 (like daemons) to determine whether a file was changed since
-the last time it was checked.
+the last time it was checked. Also, some persistence now 
+allows you to use it as a more general caching mechanism.
 
 INSTALLATION
 
@@ -16,8 +17,8 @@ To install this module type the following:
 
 DEPENDENCIES
 
-Digest::MD5 is optional but nice to have. If a script uses MD5 features, a fallback
-            to mtime timestamps is available.
+Digest     is optional but nice to have. If a script uses MD5 features, a fallback
+           to checksums is available.
 Test::More is needed to run the test script.
 
 COPYRIGHT AND LICENCE

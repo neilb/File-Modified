@@ -9,103 +9,93 @@ use strict;
 use Test::More;
 use File::Modified;
 
-use vars qw($have_file_temp $have_digest_md5 @methods);
+use vars qw($have_file_temp $have_digest @methods);
 
-BEGIN { 
-  eval "use Digest::MD5;";
-  $have_digest_md5 = ! $@;
-  
+BEGIN {
+  eval "use Digest;";
+  $have_digest = ! $@;
+
   eval "use File::Temp qw( tempfile )";
   $have_file_temp = ! $@;
-  
+
   # Now set up a list of all methods that will result in isa($method)
   # without falling back to something else ...
-  @methods = qw(mtime);
-  push @methods, "MD5" if $have_digest_md5;
+  @methods = qw(mtime Checksum);
+  push @methods, ("MD2","MD5","SHA1") if $have_digest;
 
-  plan tests => 16 + scalar @methods;
+  plan tests => 5+7 * scalar @methods;
 };
 
 #########################
 
-# Insert your test code below, the Test module is use()ed here so read
-# its man page ( perldoc Test ) for help writing this test script.
+# Our script shouldn't have changed its identity :
+for my $method (@methods) {
+  ok( ! File::Modified->new(method=>$method,files=>[$0])->changed(), "Checking $method identity for our script");
+};
 
-# Our script shouldn't have changed its timestamp
-ok( ! File::Modified->new(method=>'mtime',files=>[$0])->changed(), "Checking timestamp identity for our script");
-# Our script shouldn't have changed its MD5
-ok( ! File::Modified->new(method=>'MD5',files=>[$0])->changed(), "Checking MD5 identity for our script");
-# In fact, no module should have changed its timestamp :
-ok( ! File::Modified->new(method=>'mtime',files=>[values %INC])->changed(), "Checking timestamp identity for values of %INC");
-# and the MD5 as well :
-ok( ! File::Modified->new(method=>'MD5',files=>[values %INC])->changed(), "Checking MD5 identity for values of %INC");
+# In fact, no module should have changed its identity :
+for my $method (@methods) {
+  ok( ! File::Modified->new(method=>$method,files=>[values %INC])->changed(), "Checking $method identity for values of %INC");
+};
 
 # Let's see that adding returns the right kind and number of things
-my $m = File::Modified->new(method=>'mtime');
-my @sigs = $m->addfile($0);
-is(@sigs, 1, "One file added");
-@sigs = $m->addfile($0,$0,$0,$0,$0,$0);
-is(@sigs, 6, "Six files added");
-isa_ok($sigs[0], "File::Signature::mtime", "File::Modified->new");
+for my $method (@methods) {
+  my $m = File::Modified->new(method=>$method);
+  my @sigs = $m->addfile($0);
+  is(@sigs, 1, "$method: One file added");
+  @sigs = $m->addfile($0,$0,$0,$0,$0,$0);
+  is(@sigs, 6, "$method: Six files added");
+  isa_ok($sigs[0], "File::Signature::$method", "File::Modified->new(method=>$method)");
+};
 
 # Test that a signature can be stored and loaded :
 for my $method (@methods) {
-  $m = File::Modified->new(method=>$method);
+  my $m = File::Modified->new(method=>$method);
   my @f = $m->addfile($0);
   my $persistent = $f[0]->as_scalar();
   isa_ok(File::Signature->from_scalar($persistent),ref $f[0],"Loading back $method");
 };
 
-# Now test the fallback to timestamps whenever MD5 is not available
+# Now test the fallback to checksums whenever Digest:: is not available
 SKIP: {
-  skip "Digest::MD5 is not installed", 2 unless $have_digest_md5;
-  is( $File::Signature::MD5::fallback, undef, "Timestamp fallback correctly disabled" );
-  my @sigs = $m->add($0,"MD5");
-  isa_ok($sigs[0], "File::Signature::MD5", "File::Modified->new");
+  skip "Digest:: is not installed", 1 unless $have_digest;
+  is( $File::Signature::Digest::fallback, undef, "Checksum fallback for MD5 correctly disabled" );
 };
 SKIP: {
-  skip "Digest::MD5 is installed", 2 unless ! $have_digest_md5;
-  is( $File::Signature::MD5::fallback, 1, "Timestamp fallback correctly disabled" );
+  skip "Digest:: is installed", 2 unless ! $have_digest;
+  is( $File::Signature::Digest::fallback, 1, "Checksum fallback for Digest::xx correctly enabled" );
+  my $m = File::Modified->new(method=>"MD5");
   my $s = $m->add($0,'MD5');
-  isa_ok($s,"File::Signature::mtime","Fallback to mtime works");
+  isa_ok($s,"File::Signature::Checksum","Digest::xx fallback");
 };
 
 SKIP: {
-  skip "File::Temp is not installed", 2 unless $have_file_temp;
+  skip "File::Temp is not installed", (scalar @methods)*2 unless $have_file_temp;
 
-  my $d;
+  my %d;
 
   my ($fh, $filename);
   eval {
     ($fh,$filename) = tempfile();
     close $fh;
-
-    sleep 3;
-
-    $d = File::Modified->new(method=>'mtime',files=>[$filename]);
-
-    open F, "> $filename" or die "couldn't write to tempfile '$filename'\n";
-    close F;
-  };
-  diag $@ if $@;
-  ok($d->changed(), "Detecting changed timestamp");
-
-  eval {
     open F, "> $filename" or die "couldn't write to tempfile '$filename'\n";
     print F "foo";
     close F;
 
-    $d = File::Modified->new(method=>'MD5');
-    my @sigs = $d->addfile($filename);
-    my $expected_class = $have_digest_md5 ? "File::Signature::MD5" : "File::Signature::mtime";
-    isa_ok($sigs[0],$expected_class,"Fallback test");
+    sleep 3;
+    
+    for my $method (@methods) {
+      $d{$method} = File::Modified->new(method=>$method,files=>[$filename]);
+    };
 
     open F, "> $filename" or die "couldn't write to tempfile '$filename'\n";
     print F "bar";
     close F;
   };
   diag $@ if $@;
-  ok($d->changed(), "Detecting changed MD5 or timestamp");
+  for my $method (@methods) {
+    ok($d{$method}->changed(), "Detecting changed file via $method");
+  };
 
   # Clean up the tempfile
   if ($filename) {
