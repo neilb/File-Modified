@@ -24,7 +24,7 @@ BEGIN {
   @digest_methods = qw(MD2 MD5 SHA1);
   push @methods, @digest_methods if $have_digest;
 
-  plan tests => 6+7 * scalar @methods;
+  plan tests => 5+7 * scalar (@methods) +  scalar (@digest_methods);
 };
 
 #########################
@@ -134,12 +134,12 @@ SKIP: {
   my $digest;
 
   my ($fh, $filename);
-  ($fh,$filename) = tempfile();    
+  ($fh,$filename) = tempfile();
   close $fh;
-  
+
   for $digest (@digest_methods) {
-  
-    eval {      
+
+    eval {
       open F, "> $filename" or die "couldn't write to tempfile '$filename'\n";
       print F "foo\cZbaz";
       close F;

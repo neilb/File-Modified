@@ -9,6 +9,9 @@ Revision history for Perl extension File::Modified.
   - Added more tests (now up to 40)
   - Changed MD5 fallback from mtime to checksum
   - Added general use of the Digest:: module tree instead of MD5 only
-  
-0.03  Sun Aug 11 2002
+
+0.04  Sun Aug 11 2002
   - Fixed stupid bug in Signature::MD5 by adding a call to binmode()
+  
+0.05  Sun Aug 11 2002
+  - Adjusted number of planned tests in the distribution test file
