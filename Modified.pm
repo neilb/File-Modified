@@ -9,7 +9,7 @@ require Exporter;
 use vars qw( @ISA $VERSION );
 
 @ISA = qw(Exporter);
-$VERSION = '0.02';
+$VERSION = '0.04';
 
 sub new {
   my ($class, %args) = @_;
@@ -31,10 +31,10 @@ sub new {
 
 sub _make_digest_signature {
   my ($self,$digest) = @_;
-  
+
   eval "use Digest::$digest";
-  
-  if (! $@) {  
+
+  if (! $@) {
     no strict 'refs';
     if (defined @{"Digest::${digest}::ISA"}) {
       @{"File::Signature::${digest}::ISA"} = qw(File::Signature::Digest);
@@ -54,7 +54,7 @@ sub add {
     return $self->{Files}->{$filename} = $s;
   } else {
     # retry and try Digest::$method
-  
+
     if ($self->_make_digest_signature($method)) {
       my $s = $signatureclass->new($filename);
       return $self->{Files}->{$filename} = $s;
@@ -185,13 +185,13 @@ sub changed {
       local *F;
       open F, $self->{Filename} or die "Couldn't read from file '$self->{Filename}' : $!";
       binmode F;
-      
+
       my $buf;
       while (read(F,$buf,32768)) {
         $result += unpack("%32C*", $buf);
-        $result %= 0xFFFFFFFF;      
+        $result %= 0xFFFFFFFF;
       };
-            
+
       close F;
     };
     return $result;
@@ -204,10 +204,10 @@ sub changed {
 
   sub digestname {
     my ($class) = @_;
-    $class = ref $class || $class; 
+    $class = ref $class || $class;
     return $1 if ($class =~ /^File::Signature::([^:]+)$/);
   };
-  
+
   sub digest {
     my ($self) = @_;
     if (! exists $self->{Digest}) {
@@ -224,7 +224,7 @@ sub changed {
     if (-e $self->{Filename} and -r $self->{Filename}) {
       local *F;
       open F, $self->{Filename} or die "Couldn't read from file '$self->{Filename}' : $!";
-      #$result = Digest::MD5->new()->addfile(*F)->b64digest();
+      binmode F;
       $result = $self->digest->addfile(*F)->b64digest();
       close F;
     };
@@ -335,7 +335,7 @@ example. There is one point of laziness in the implementation of C<File::Signatu
 the C<check> method can only compare strings instead of arbitrary structures (yes,
 there ARE things that are easier in Python than in Perl). C<File::Signature::Digest>
 is a wrapper for Gisle Aas' L<Digest> module and allows you to use any module below
-the C<Digest> namespace as a signature, for example C<File::Signature::MD5> and 
+the C<Digest> namespace as a signature, for example C<File::Signature::MD5> and
 C<File::Signature::SHA1>.
 
 =head2 TODO

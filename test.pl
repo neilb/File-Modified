@@ -9,7 +9,7 @@ use strict;
 use Test::More;
 use File::Modified;
 
-use vars qw($have_file_temp $have_digest @methods);
+use vars qw($have_file_temp $have_digest @methods @digest_methods);
 
 BEGIN {
   eval "use Digest;";
@@ -21,9 +21,10 @@ BEGIN {
   # Now set up a list of all methods that will result in isa($method)
   # without falling back to something else ...
   @methods = qw(mtime Checksum);
-  push @methods, ("MD2","MD5","SHA1") if $have_digest;
+  @digest_methods = qw(MD2 MD5 SHA1);
+  push @methods, @digest_methods if $have_digest;
 
-  plan tests => 5+7 * scalar @methods;
+  plan tests => 6+7 * scalar @methods;
 };
 
 #########################
@@ -83,7 +84,7 @@ SKIP: {
     close F;
 
     sleep 3;
-    
+
     for my $method (@methods) {
       $d{$method} = File::Modified->new(method=>$method,files=>[$filename]);
     };
@@ -123,4 +124,39 @@ TODO: {
   my $d = File::Modified->new(method => 'Complex',files => ['does_not_need_to_exist']);
 
   ok(! $d->changed);
+};
+
+SKIP: {
+  skip "File::Temp is not installed", 1 unless $have_file_temp;
+  skip "Digest::* is not installed", 1 unless $have_digest;
+
+  my %d;
+  my $digest;
+
+  my ($fh, $filename);
+  ($fh,$filename) = tempfile();    
+  close $fh;
+  
+  for $digest (@digest_methods) {
+  
+    eval {      
+      open F, "> $filename" or die "couldn't write to tempfile '$filename'\n";
+      print F "foo\cZbaz";
+      close F;
+
+      #sleep 3;
+      $d{$digest} = File::Modified->new(method=>$digest,files=>[$filename]);
+
+      open F, "> $filename" or die "couldn't write to tempfile '$filename'\n";
+      print F "foo\cZbar";
+      close F;
+    };
+    diag $@ if $@;
+    ok($d{$digest}->changed(), "Detecting changed binary file via Digest::$digest");
+  };
+
+  # Clean up the tempfile
+  if ($filename) {
+    unlink($filename) or diag "Couldn't remove tempfile $filename : $!\n";
+  };
 };
