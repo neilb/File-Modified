@@ -1,6 +1,14 @@
+.cvsignore
+bug.txt
 Changes
-Modified.pm
+example/1.pl
+example/Export.cfg
+example/Import.cfg
+lib/File/Modified.pm
 Makefile.PL
-MANIFEST
+MANIFEST			This list of files
+MANIFEST.skip
 README
-test.pl
+t/.cvsignore
+t/test.t
+META.yml                                 Module meta-data (added by MakeMaker)

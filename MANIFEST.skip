@@ -1,0 +1,11 @@
+\.lwpcookies$
+\.cvsignore$
+\.releaserc$
+blib
+File-Modified-*
+File-Modified-*/
+CVS/
+pm_to_blib
+cvstest
+Makefile
+.releaserc

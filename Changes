@@ -20,4 +20,6 @@ Revision history for Perl extension File::Modified.
   - Yet another test-only update : Check that the different digests
     are actually there before using them. Apparently, MD2 isn't in
     the Digest:: modules anymore. Added directory watching to the Todo list.
-  
+0.07 20041205
+  - Changed a hidden submodule so it doesn't clash with File::Signature anymore.
+  - Directory cleanup (Modified.pm was distributed twice)
