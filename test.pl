@@ -14,6 +14,13 @@ use vars qw($have_file_temp $have_digest @methods @digest_methods);
 BEGIN {
   eval "use Digest;";
   $have_digest = ! $@;
+  
+  @digest_methods = ();
+  
+  for (qw(MD2 MD5 SHA1 nonExistingDigest)) {
+    eval "use Digest::$_;";
+    push @digest_methods, $_ unless $@;
+  };
 
   eval "use File::Temp qw( tempfile )";
   $have_file_temp = ! $@;
@@ -21,7 +28,6 @@ BEGIN {
   # Now set up a list of all methods that will result in isa($method)
   # without falling back to something else ...
   @methods = qw(mtime Checksum);
-  @digest_methods = qw(MD2 MD5 SHA1);
   push @methods, @digest_methods if $have_digest;
 
   plan tests => 5+7 * scalar (@methods) +  scalar (@digest_methods);

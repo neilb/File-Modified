@@ -12,6 +12,12 @@ Revision history for Perl extension File::Modified.
 
 0.04  Sun Aug 11 2002
   - Fixed stupid bug in Signature::MD5 by adding a call to binmode()
-  
+
 0.05  Sun Aug 11 2002
   - Adjusted number of planned tests in the distribution test file
+  
+0.06  Mon Aug 12 2002
+  - Yet another test-only update : Check that the different digests
+    are actually there before using them. Apparently, MD2 isn't in
+    the Digest:: modules anymore. Added directory watching to the Todo list.
+  

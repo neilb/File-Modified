@@ -9,7 +9,7 @@ require Exporter;
 use vars qw( @ISA $VERSION );
 
 @ISA = qw(Exporter);
-$VERSION = '0.05';
+$VERSION = '0.06';
 
 sub new {
   my ($class, %args) = @_;
@@ -347,6 +347,8 @@ C<File::Signature::SHA1>.
 * Document C<File::Signature> or put it down into another namespace.
 
 * Extract the C<File::Signature> subclasses out into their own file.
+
+* Create an easy option to watch a whole directory tree.
 
 =head2 EXPORT
 
