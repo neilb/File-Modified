@@ -18,7 +18,10 @@ WriteMakefile(
     'NAME'          => 'File::Modified',
     'VERSION_FROM'  => 'lib/File/Modified.pm',
 
-    'PREREQ_PM'    => {},
+    'PREREQ_PM'    => {
+        'strict'   => 0,
+        'warnings' => 0,
+    },
 
     ($] >= 5.005 ?
       (ABSTRACT_FROM => 'lib/File/Modified.pm',
@@ -48,5 +51,18 @@ WriteMakefile(
           })
     ),
 
+    ($mm_ver >= 6.52
+        ? (CONFIGURE_REQUIRES => {
+                'ExtUtils::MakeMaker' => 6.30,
+          })
+        : ()
+    ),
+
+    ($mm_ver >= 6.64
+        ? (TEST_REQUIRES => {
+                'Test::More' => 0.88,
+          })
+        : ()
+    ),
 
 );

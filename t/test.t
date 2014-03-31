@@ -3,11 +3,12 @@
 # `make test'. After `make install' it should work as `perl test.pl'
 
 use strict;
+use warnings;
 
 #########################
 
-use Test::More;
-use vars qw($have_file_temp $have_digest @methods @digest_methods);
+use Test::More 0.88;
+our ($have_file_temp, $have_digest, @methods, @digest_methods);
 
 BEGIN {
   eval "use Digest;";

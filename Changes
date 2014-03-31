@@ -8,6 +8,7 @@ Revision history for Perl module File::Modified
     - Min perl version 5.6.0
     - Marked license as 'perl' in metadata, to match the doc
     - Added github repo to metadata and pod
+    - Added PREREQ_PM, CONFIGURE_REQUIRES and TEST_REQUIRES to Makefile.PL
 
 0.07 2004-12-05
     - Changed a hidden submodule so it doesn't clash with
