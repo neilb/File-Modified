@@ -2,9 +2,8 @@ package File::Modified;
 use strict;
 use warnings;
 
-use vars qw( @ISA $VERSION );
-
-$VERSION = '0.07';
+our $VERSION = '0.08';
+our @ISA;
 
 sub new {
   my ($class, %args) = @_;
@@ -31,7 +30,7 @@ sub _make_digest_signature {
 
   if (! $@) {
     no strict 'refs';
-    if (defined @{"Digest::${digest}::ISA"}) {
+    if (@{"Digest::${digest}::ISA"}) {
       @{"File::Modified::Signature::${digest}::ISA"} = qw(File::Modified::Signature::Digest);
       return 1;
     };
