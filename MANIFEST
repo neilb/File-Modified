@@ -9,4 +9,3 @@ MANIFEST			This list of files
 MANIFEST.skip
 README
 t/test.t
-META.yml                                 Module meta-data (added by MakeMaker)
