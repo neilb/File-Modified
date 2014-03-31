@@ -354,7 +354,15 @@ C<File::Signature::SHA1>.
 
 None by default.
 
-=head2 COPYRIGHT AND LICENSE
+=head1 SEE ALSO
+
+L<perl>, L<Digest::MD5>, L<Digest>, L<File::Signature>.
+
+=head1 REPOSITORY
+
+L<https://github.com/neilbowers/File-Modified>
+
+=head1 COPYRIGHT AND LICENSE
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 
@@ -364,10 +372,7 @@ Copyright (C) 2002 Max Maischein
 
 Max Maischein, E<lt>corion@cpan.orgE<gt>
 
-Please contact me if you find bugs or otherwise improve the module. More tests are also very welcome !
-
-=head1 SEE ALSO
-
-L<perl>,L<Digest::MD5>,L<Digest>, L<File::Signature>.
+Please contact me if you find bugs or otherwise improve the module.
+More tests are also very welcome !
 
 =cut

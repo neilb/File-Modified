@@ -34,4 +34,19 @@ WriteMakefile(
         : ()
     ),
 
+    ($mm_ver <= 6.45
+        ? ()
+        : (META_MERGE => {
+            'meta-spec' => { version => 2 },
+            resources => {
+                repository  => {
+                    type => 'git',
+                    web  => 'https://github.com/neilbowers/File-Modified',
+                    url  => 'git://github.com/neilbowers/File-Modified.git',
+                },
+            },
+          })
+    ),
+
+
 );
