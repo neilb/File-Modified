@@ -263,15 +263,19 @@ Second example - a script that knows when any of its modules have changed :
 
 =head1 DESCRIPTION
 
-The File::Modified module is intended as a simple method for programs to detect
-whether configuration files (or modules they rely on) have changed. There are
-currently two methods of change detection implemented, C<mtime> and C<MD5>.
+This module provides a simple mechanism for identifying when the contents
+of one or more files have changed.
+It was initially intended for programs to detect when their configuration
+files (or the module they rely on) have changed.
+
+There are currently two methods of change detection implemented,
+C<mtime> and C<MD5>.
 The C<MD5> method will fall back to use timestamps if the C<Digest::MD5> module
 cannot be loaded.
 
-There is another module, L<File::Signature>, which has many similar features,
-so if this module doesn't do what you need, maybe File::Signature does. There
-also is quite some overlap between the two modules, code wise.
+There are a number of other modules on CPAN that provide
+similar functionality;
+they are listed in L</"SEE ALSO"> below.
 
 =over 4
 
@@ -356,7 +360,45 @@ None by default.
 
 =head1 SEE ALSO
 
-L<perl>, L<Digest::MD5>, L<Digest>, L<File::Signature>.
+L<File::Monitor> will watch a file or directory,
+invoking a callback when it changes.
+
+L<File::Monitor::Lite> is similar to File::Monitor, but can also
+let you know about new files being created.
+
+L<File::Monitor::Simple> watches a directory for changes to any files
+whose name matches a regular expression.
+
+L<File::IfModified> provides a function that can be used to check
+whether a file has been modified since the last time you checked.
+
+L<File::ChangeNotify> provides an API for watching all files in
+a given directory. It provides several mechanisms for doing this,
+and a base-class that you can subclass to write your own watcher.
+
+L<File::Signature> provides some lower-level functions than
+File::Modified, which are used to identify whether a file has
+changed by comparing its MD5 digest with an earlier snapshot.
+
+L<File::Stat::Trigger> will invoke one of your callbacks if
+the C<stat()> details of a file change.
+
+L<Win32::FileSystem::Watcher> provides a Windows-specific
+solution for watching for changes to a filesystem.
+The documentation is extremely limited, so I can't tell if you
+can limit it a specific directory.
+
+L<App::watcher> comes with a script that will run a command if
+any of the files in a directory are changed.
+
+L<IO::Async::File> watches an open filehandle or 'named filesystem entity'
+for changes in its C<stat()> fields.
+
+L<POE::Component::DirWatch> watches a directory for new files or directories,
+invoking a user-supplied callback function when one is seen.
+
+L<WWW::Monitor> is similar to File::Monitor,
+but checks URLs rather than files.
 
 =head1 REPOSITORY
 

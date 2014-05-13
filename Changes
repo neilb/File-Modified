@@ -1,6 +1,7 @@
 Revision history for Perl module File::Modified
 
 0.09 2014-05-13
+    - Added a bunch of similar modules to the SEE ALSO section in the pod.
     - Corrected self-reference in doc to use the right name.
 
 0.08 2014-03-31
