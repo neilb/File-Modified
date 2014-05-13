@@ -4,7 +4,7 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 our @ISA;
 
 sub new {
@@ -263,7 +263,7 @@ Second example - a script that knows when any of its modules have changed :
 
 =head1 DESCRIPTION
 
-The Modified module is intended as a simple method for programs to detect
+The File::Modified module is intended as a simple method for programs to detect
 whether configuration files (or modules they rely on) have changed. There are
 currently two methods of change detection implemented, C<mtime> and C<MD5>.
 The C<MD5> method will fall back to use timestamps if the C<Digest::MD5> module
