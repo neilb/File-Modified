@@ -2,6 +2,7 @@ Revision history for Perl module File::Modified
 
 0.10 2015-10-26 NEILB
     - Switched to Dist::Zilla
+    - Updated github repo URL after changing my github username
 
 0.09 2014-05-13 NEILB
     - Added a bunch of similar modules to the SEE ALSO section in the pod.

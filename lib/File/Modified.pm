@@ -401,7 +401,7 @@ but checks URLs rather than files.
 
 =head1 REPOSITORY
 
-L<https://github.com/neilbowers/File-Modified>
+L<https://github.com/neilb/File-Modified>
 
 =head1 COPYRIGHT AND LICENSE
 
