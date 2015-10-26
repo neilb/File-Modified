@@ -1,10 +1,13 @@
 Revision history for Perl module File::Modified
 
-0.09 2014-05-13
+0.10 2015-10-26 NEILB
+    - Switched to Dist::Zilla
+
+0.09 2014-05-13 NEILB
     - Added a bunch of similar modules to the SEE ALSO section in the pod.
     - Corrected self-reference in doc to use the right name.
 
-0.08 2014-03-31
+0.08 2014-03-31 NEILB
     - got rid of warning about defined(@array) being deprecated.
       Bug and fix from BWAGNER RT#81444
     - Removed two .cvsignore files RT#26843

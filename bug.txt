@@ -1,3 +1,0 @@
-The synopsis is partly incorrect :
-
-$0 eq '-e' shouldn't be watched ...
