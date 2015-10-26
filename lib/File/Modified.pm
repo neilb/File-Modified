@@ -158,6 +158,7 @@ sub changed {
 
 {
   package File::Modified::Signature::mtime;
+
   use base 'File::Modified::Signature';
 
   sub signature {
@@ -171,6 +172,7 @@ sub changed {
 
 {
   package File::Modified::Signature::Checksum;
+
   use base 'File::Modified::Signature';
 
   sub signature {
@@ -195,6 +197,7 @@ sub changed {
 
 {
   package File::Modified::Signature::Digest;
+
   use base 'File::Modified::Signature';
 
   sub digestname {
